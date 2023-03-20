@@ -4,7 +4,10 @@
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>Introduction - Polygon Miden VM</title>
+
+
         <!-- Custom HTML head -->
+        
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="theme-color" content="#ffffff" />
@@ -15,17 +18,21 @@
         <link rel="stylesheet" href="../css/general.css">
         <link rel="stylesheet" href="../css/chrome.css">
         <link rel="stylesheet" href="../css/print.css" media="print">
+
         <!-- Fonts -->
         <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
         <link rel="stylesheet" href="../fonts/fonts.css">
+
         <!-- Highlight.js Stylesheets -->
         <link rel="stylesheet" href="../highlight.css">
         <link rel="stylesheet" href="../tomorrow-night.css">
         <link rel="stylesheet" href="../ayu-highlight.css">
 
         <!-- Custom theme stylesheets -->
+
     </head>
     <body>
+    <div id="body-container">
         <!-- Provide site root to javascript -->
         <script>
             var path_to_root = "../";
@@ -63,10 +70,12 @@
         <!-- Hide / unhide sidebar before it is displayed -->
         <script>
             var html = document.querySelector('html');
-            var sidebar = 'hidden';
+            var sidebar = null;
             if (document.body.clientWidth >= 1080) {
                 try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
                 sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
             }
             html.classList.remove('sidebar-visible');
             html.classList.add("sidebar-" + sidebar);
@@ -74,7 +83,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded "><a href="../intro/main.html" class="active"><strong aria-hidden="true">1.</strong> Introduction</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../intro/overview.html"><strong aria-hidden="true">1.1.</strong> Overview</a></li><li class="chapter-item expanded "><a href="../intro/usage.html"><strong aria-hidden="true">1.2.</strong> Usage</a></li><li class="chapter-item expanded "><a href="../intro/performance.html"><strong aria-hidden="true">1.3.</strong> Performance</a></li></ol></li><li class="chapter-item expanded "><a href="../user_docs/main.html"><strong aria-hidden="true">2.</strong> User Documentation</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../user_docs/assembly/main.html"><strong aria-hidden="true">2.1.</strong> Miden Assembly</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../user_docs/assembly/code_organization.html"><strong aria-hidden="true">2.1.1.</strong> Code Organization</a></li><li class="chapter-item expanded "><a href="../user_docs/assembly/execution_contexts.html"><strong aria-hidden="true">2.1.2.</strong> Execution contexts</a></li><li class="chapter-item expanded "><a href="../user_docs/assembly/flow_control.html"><strong aria-hidden="true">2.1.3.</strong> Flow Control</a></li><li class="chapter-item expanded "><a href="../user_docs/assembly/field_operations.html"><strong aria-hidden="true">2.1.4.</strong> Field Operations</a></li><li class="chapter-item expanded "><a href="../user_docs/assembly/u32_operations.html"><strong aria-hidden="true">2.1.5.</strong> u32 Operations</a></li><li class="chapter-item expanded "><a href="../user_docs/assembly/stack_manipulation.html"><strong aria-hidden="true">2.1.6.</strong> Stack manipulation</a></li><li class="chapter-item expanded "><a href="../user_docs/assembly/io_operations.html"><strong aria-hidden="true">2.1.7.</strong> Input / Output Operations</a></li><li class="chapter-item expanded "><a href="../user_docs/assembly/cryptographic_operations.html"><strong aria-hidden="true">2.1.8.</strong> Cryptographic Operations</a></li></ol></li><li class="chapter-item expanded "><a href="../user_docs/stdlib/main.html"><strong aria-hidden="true">2.2.</strong> Miden Standard Library</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../user_docs/stdlib/crypto/hashes.html"><strong aria-hidden="true">2.2.1.</strong> std::crypto::hashes</a></li><li class="chapter-item expanded "><a href="../user_docs/stdlib/math/u64.html"><strong aria-hidden="true">2.2.2.</strong> std::math::u64</a></li><li class="chapter-item expanded "><a href="../user_docs/stdlib/sys.html"><strong aria-hidden="true">2.2.3.</strong> std:sys</a></li></ol></li></ol></li><li class="chapter-item expanded "><a href="../design/main.html"><strong aria-hidden="true">3.</strong> Design</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../design/programs.html"><strong aria-hidden="true">3.1.</strong> Programs</a></li><li class="chapter-item expanded "><a href="../design/decoder/main.html"><strong aria-hidden="true">3.2.</strong> Program decoder</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../design/decoder/constraints.html"><strong aria-hidden="true">3.2.1.</strong> Decoder constraints</a></li></ol></li><li class="chapter-item expanded "><a href="../design/stack/main.html"><strong aria-hidden="true">3.3.</strong> Operand stack</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../design/stack/op_constraints.html"><strong aria-hidden="true">3.3.1.</strong> Operation constraints</a></li><li class="chapter-item expanded "><a href="../design/stack/system_ops.html"><strong aria-hidden="true">3.3.2.</strong> System operations</a></li><li class="chapter-item expanded "><a href="../design/stack/field_ops.html"><strong aria-hidden="true">3.3.3.</strong> Field operations</a></li><li class="chapter-item expanded "><a href="../design/stack/u32_ops.html"><strong aria-hidden="true">3.3.4.</strong> u32 operations</a></li><li class="chapter-item expanded "><a href="../design/stack/stack_ops.html"><strong aria-hidden="true">3.3.5.</strong> Stack manipulation</a></li><li class="chapter-item expanded "><a href="../design/stack/io_ops.html"><strong aria-hidden="true">3.3.6.</strong> Input / output operations</a></li><li class="chapter-item expanded "><a href="../design/stack/crypto_ops.html"><strong aria-hidden="true">3.3.7.</strong> Cryptographic operations</a></li></ol></li><li class="chapter-item expanded "><a href="../design/range.html"><strong aria-hidden="true">3.4.</strong> Range Checker</a></li><li class="chapter-item expanded "><a href="../design/chiplets/main.html"><strong aria-hidden="true">3.5.</strong> Chiplets</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../design/chiplets/hasher.html"><strong aria-hidden="true">3.5.1.</strong> Hash Chiplet</a></li><li class="chapter-item expanded "><a href="../design/chiplets/bitwise.html"><strong aria-hidden="true">3.5.2.</strong> Bitwise Chiplet</a></li><li class="chapter-item expanded "><a href="../design/chiplets/memory.html"><strong aria-hidden="true">3.5.3.</strong> Memory Chiplet</a></li></ol></li><li class="chapter-item expanded "><a href="../design/multiset.html"><strong aria-hidden="true">3.6.</strong> Multiset checks</a></li></ol></li><li class="chapter-item expanded "><a href="../background.html"><strong aria-hidden="true">4.</strong> Background Material</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded "><a href="../intro/main.html" class="active"><strong aria-hidden="true">1.</strong> Introduction</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../intro/overview.html"><strong aria-hidden="true">1.1.</strong> Overview</a></li><li class="chapter-item expanded "><a href="../intro/usage.html"><strong aria-hidden="true">1.2.</strong> Usage</a></li><li class="chapter-item expanded "><a href="../intro/performance.html"><strong aria-hidden="true">1.3.</strong> Performance</a></li></ol></li><li class="chapter-item expanded "><a href="../user_docs/main.html"><strong aria-hidden="true">2.</strong> User Documentation</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../user_docs/assembly/main.html"><strong aria-hidden="true">2.1.</strong> Miden Assembly</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../user_docs/assembly/code_organization.html"><strong aria-hidden="true">2.1.1.</strong> Code Organization</a></li><li class="chapter-item expanded "><a href="../user_docs/assembly/execution_contexts.html"><strong aria-hidden="true">2.1.2.</strong> Execution contexts</a></li><li class="chapter-item expanded "><a href="../user_docs/assembly/flow_control.html"><strong aria-hidden="true">2.1.3.</strong> Flow Control</a></li><li class="chapter-item expanded "><a href="../user_docs/assembly/field_operations.html"><strong aria-hidden="true">2.1.4.</strong> Field Operations</a></li><li class="chapter-item expanded "><a href="../user_docs/assembly/u32_operations.html"><strong aria-hidden="true">2.1.5.</strong> u32 Operations</a></li><li class="chapter-item expanded "><a href="../user_docs/assembly/stack_manipulation.html"><strong aria-hidden="true">2.1.6.</strong> Stack manipulation</a></li><li class="chapter-item expanded "><a href="../user_docs/assembly/io_operations.html"><strong aria-hidden="true">2.1.7.</strong> Input / Output Operations</a></li><li class="chapter-item expanded "><a href="../user_docs/assembly/cryptographic_operations.html"><strong aria-hidden="true">2.1.8.</strong> Cryptographic Operations</a></li></ol></li><li class="chapter-item expanded "><a href="../user_docs/stdlib/main.html"><strong aria-hidden="true">2.2.</strong> Miden Standard Library</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../user_docs/stdlib/crypto/fri.html"><strong aria-hidden="true">2.2.1.</strong> std::crypto::fri</a></li><li class="chapter-item expanded "><a href="../user_docs/stdlib/crypto/hashes.html"><strong aria-hidden="true">2.2.2.</strong> std::crypto::hashes</a></li><li class="chapter-item expanded "><a href="../user_docs/stdlib/math/u64.html"><strong aria-hidden="true">2.2.3.</strong> std::math::u64</a></li><li class="chapter-item expanded "><a href="../user_docs/stdlib/mem.html"><strong aria-hidden="true">2.2.4.</strong> std::mem</a></li><li class="chapter-item expanded "><a href="../user_docs/stdlib/sys.html"><strong aria-hidden="true">2.2.5.</strong> std:sys</a></li></ol></li></ol></li><li class="chapter-item expanded "><a href="../design/main.html"><strong aria-hidden="true">3.</strong> Design</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../design/programs.html"><strong aria-hidden="true">3.1.</strong> Programs</a></li><li class="chapter-item expanded "><a href="../design/decoder/main.html"><strong aria-hidden="true">3.2.</strong> Program decoder</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../design/decoder/constraints.html"><strong aria-hidden="true">3.2.1.</strong> Decoder constraints</a></li></ol></li><li class="chapter-item expanded "><a href="../design/stack/main.html"><strong aria-hidden="true">3.3.</strong> Operand stack</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../design/stack/op_constraints.html"><strong aria-hidden="true">3.3.1.</strong> Operation constraints</a></li><li class="chapter-item expanded "><a href="../design/stack/system_ops.html"><strong aria-hidden="true">3.3.2.</strong> System operations</a></li><li class="chapter-item expanded "><a href="../design/stack/field_ops.html"><strong aria-hidden="true">3.3.3.</strong> Field operations</a></li><li class="chapter-item expanded "><a href="../design/stack/u32_ops.html"><strong aria-hidden="true">3.3.4.</strong> u32 operations</a></li><li class="chapter-item expanded "><a href="../design/stack/stack_ops.html"><strong aria-hidden="true">3.3.5.</strong> Stack manipulation</a></li><li class="chapter-item expanded "><a href="../design/stack/io_ops.html"><strong aria-hidden="true">3.3.6.</strong> Input / output operations</a></li><li class="chapter-item expanded "><a href="../design/stack/crypto_ops.html"><strong aria-hidden="true">3.3.7.</strong> Cryptographic operations</a></li></ol></li><li class="chapter-item expanded "><a href="../design/range.html"><strong aria-hidden="true">3.4.</strong> Range Checker</a></li><li class="chapter-item expanded "><a href="../design/chiplets/main.html"><strong aria-hidden="true">3.5.</strong> Chiplets</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../design/chiplets/hasher.html"><strong aria-hidden="true">3.5.1.</strong> Hash Chiplet</a></li><li class="chapter-item expanded "><a href="../design/chiplets/bitwise.html"><strong aria-hidden="true">3.5.2.</strong> Bitwise Chiplet</a></li><li class="chapter-item expanded "><a href="../design/chiplets/memory.html"><strong aria-hidden="true">3.5.3.</strong> Memory Chiplet</a></li></ol></li><li class="chapter-item expanded "><a href="../design/multiset.html"><strong aria-hidden="true">3.6.</strong> Multiset checks</a></li></ol></li><li class="chapter-item expanded "><a href="../background.html"><strong aria-hidden="true">4.</strong> Background Material</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -82,7 +91,7 @@
         <div id="page-wrapper" class="page-wrapper">
 
             <div class="page">
-                <div id="menu-bar-hover-placeholder"></div>
+                                <div id="menu-bar-hover-placeholder"></div>
                 <div id="menu-bar" class="menu-bar sticky bordered">
                     <div class="left-buttons">
                         <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
@@ -109,6 +118,10 @@
                         <a href="../print.html" title="Print this book" aria-label="Print this book">
                             <i id="print-button" class="fa fa-print"></i>
                         </a>
+                        <a href="https://github.com/0xPolygonMiden/miden-vm/" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+
                     </div>
                 </div>
 
@@ -122,6 +135,7 @@
                         </ul>
                     </div>
                 </div>
+
                 <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
                 <script>
                     document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
@@ -137,7 +151,7 @@
 <h1 id="introduction"><a class="header" href="#introduction">Introduction</a></h1>
 <p>Miden VM is a zero-knowledge virtual machine written in Rust. For any program executed on Miden VM, a STARK-based proof of execution is automatically generated. This proof can then be used by anyone to verify that the program was executed correctly without the need for re-executing the program or even knowing the contents of the program.</p>
 <h2 id="status-and-features"><a class="header" href="#status-and-features">Status and features</a></h2>
-<p>Miden VM is currently on release v0.3. In this release, most of the core features of the VM have been stabilized, and most of the STARK proof generation has been implemented. While we expect to keep making changes to the VM internals, the external interfaces should remain relatively stable, and we will do our best to minimize the amount of breaking changes going forward.</p>
+<p>Miden VM is currently on release v0.4. In this release, most of the core features of the VM have been stabilized, and most of the STARK proof generation has been implemented. While we expect to keep making changes to the VM internals, the external interfaces should remain relatively stable, and we will do our best to minimize the amount of breaking changes going forward.</p>
 <p>At this point, Miden VM is good enough for experimentation, and even for real-world applications, but it is not yet ready for production use. The codebase has not been audited and contains known and unknown bugs and security flaws.</p>
 <h3 id="feature-highlights"><a class="header" href="#feature-highlights">Feature highlights</a></h3>
 <p>Miden VM is a fully-featured virtual machine. Despite being optimized for zero-knowledge proof generation, it provides all the features one would expect from a regular VM. To highlight a few:</p>
@@ -147,15 +161,16 @@
 <li><strong>Execution contexts.</strong> Miden VM program execution can span multiple isolated contexts, each with its own dedicated memory space. The contexts are separated into the <em>root context</em> and <em>user contexts</em>. The root context can be accessed from user contexts via customizable kernel calls.</li>
 <li><strong>Memory.</strong> Miden VM supports read-write random-access memory. Procedures can reserve portions of global memory for easier management of local variables.</li>
 <li><strong>u32 operations.</strong> Miden VM supports native operations with 32-bit unsigned integers. This includes basic arithmetic, comparison, and bitwise operations.</li>
-<li><strong>Cryptographic operations.</strong> Miden assembly provides built-in instructions for computing hashes and verifying Merkle paths. These instructions use Rescue Prime hash function (which is the native hash function of the VM).</li>
-<li><strong>Standard library.</strong> Miden VM ships with a standard library which expands the core functionality of the VM (e.g., by adding support for 64-bit unsigned integers). Currently, the standard library is quite limited, but we plan to expand it significantly in the future.</li>
+<li><strong>Cryptographic operations.</strong> Miden assembly provides built-in instructions for computing hashes and verifying Merkle paths. These instructions use Rescue Prime Optimized hash function (which is the native hash function of the VM).</li>
+<li><strong>External libraries.</strong> Miden VM supports compiling programs against pre-defined libraries. The VM ships with one such library: Miden <code>stdlib</code> which adds support for such things as 64-bit unsigned integers. Developers can build other similar libraries to extend the VM's functionality in ways which fit their use cases.</li>
 <li><strong>Nondeterminism</strong>. Unlike traditional virtual machines, Miden VM supports nondeterministic programming. This means a prover may do additional work outside of the VM and then provide execution <em>hints</em> to the VM. These hints can be used to dramatically speed up certain types of computations, as well as to supply secret inputs to the VM.</li>
+<li><strong>Custom advice providers.</strong> Miden VM can be instantiated with user-defined advice providers. These advice providers are used to supply external data to the VM during execution/proof generation (via nondeterministic inputs) and can connect the VM to arbitrary data sources (e.g., a database or RPC calls).</li>
 </ul>
 <h3 id="planned-features"><a class="header" href="#planned-features">Planned features</a></h3>
 <p>In the coming months we plan to finalize the design of the VM and implement support for the following features:</p>
 <ul>
-<li><strong>Custom advice providers.</strong> It will be possible to instantiate the VM with custom advice providers. These providers can be used to supply external data to the VM (e.g., from a database or RPC calls).</li>
-<li><strong>User-provided libraries.</strong> It will be possible to compile Miden VM programs against arbitrary 3rd-party libraries (not just Miden <code>stdlib</code>). Together with execution context isolation and custom advice providers, this will enable flexible ways to extend the VM with core features such as persistent storage.</li>
+<li><strong>Recursive proofs.</strong> Miden VM will soon be able to verify a proof of its own execution. This will enable infinitely recursive proofs, an extremely useful tool for real-world applications.</li>
+<li><strong>Better debugging.</strong> Miden VM will provide a better debugging experience including the ability to place breakpoints, better source mapping, and more complete program analysis info.</li>
 <li><strong>Faulty execution.</strong> Miden VM will support generating proofs for programs with faulty execution (a notoriously complex task in ZK context). That is, it will be possible to prove that execution of some program resulted in an error.</li>
 </ul>
 <h2 id="structure-of-this-document"><a class="header" href="#structure-of-this-document">Structure of this document</a></h2>
@@ -173,15 +188,18 @@
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
+
                             <a rel="next" href="../intro/overview.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
+
                         <div style="clear: both"></div>
                     </nav>
                 </div>
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
+
                     <a rel="next" href="../intro/overview.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
@@ -189,16 +207,25 @@
 
         </div>
 
+
+
+
         <script>
             window.playground_copyable = true;
         </script>
+
+
         <script src="../elasticlunr.min.js"></script>
         <script src="../mark.min.js"></script>
         <script src="../searcher.js"></script>
+
         <script src="../clipboard.min.js"></script>
         <script src="../highlight.js"></script>
         <script src="../book.js"></script>
 
         <!-- Custom JS scripts -->
+
+
+    </div>
     </body>
 </html>
