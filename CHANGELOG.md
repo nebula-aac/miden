@@ -1,5 +1,61 @@
 # Changelog
 
+## 0.10.6 (2024-09-12) - `miden-processor` crate only.
+
+#### Enhancements
+
+- Added `PartialEq`, `Eq`, `Serialize` and `Deserialize` to `AdviceMap` and `AdviceInputs` structs (#1494).
+
+## 0.10.5 (2024-08-21)
+
+#### Enhancements
+
+- Updated `MastForest::read_from` to deserialize without computing node hashes unnecessarily (#1453).
+- Assembler: Merge contiguous basic blocks (#1454).
+- Assembler: Add a threshold number of operations after which we stop merging more in the same block (#1461).
+
+#### Changes
+
+- Added `new_unsafe()` constructors to MAST node types which do not compute node hashes (#1453).
+- Consolidated `BasicBlockNode` constructors and converted assert flow to `MastForestError::EmptyBasicBlock` (#1453).
+
+#### Fixes
+
+- Fixed an issue with registering non-local procedures in `MemMastForestStore` (#1462).
+- Added a check for circular external node lookups in the processor (#1464).
+
+## 0.10.4 (2024-08-15) - `miden-processor` crate only
+
+#### Enhancements
+
+- Added support for executing `Dyn` nodes from external MAST forests (#1455).
+
+## 0.10.3 (2024-08-12)
+
+#### Enhancements
+
+- Added `with-debug-info` feature to `miden-stdlib` (#1445).
+- Added `Assembler::add_modules_from_dir()` method (#1445).
+- [BREAKING] Implemented building of multi-module kernels (#1445).
+
+#### Changes
+
+- [BREAKING] Replaced `SourceManager` parameter with `Assembler` in `Library::from_dir` (#1445).
+- [BREAKING] Moved `Library` and `KernelLibrary` exports to the root of the `miden-assembly` crate. (#1445).
+
+## 0.10.2 (2024-08-10)
+
+#### Enhancements
+
+- Removed linear search of trace rows from `BlockHashTableRow::table_init()` (#1439).
+- Exposed some pretty printing internals for `MastNode` (#1441).
+- Made `KernelLibrary` impl `Clone` and `AsRef<Library>` (#1441).
+- Added serialization to the `Program` struct (#1442).
+
+#### Changes
+
+- [BREAKING] Removed serialization of AST structs (#1442).
+
 ## 0.10.0 (2024-08-06)
 
 #### Features
@@ -21,16 +77,16 @@
 - Relaxed the parser to allow one branch of an `if.(true|false)` to be empty.
 - Optimized `std::sys::truncate_stuck` procedure (#1384).
 - Updated CI and Makefile to standardize it across Miden repositories (#1342).
-- Add serialization/deserialization for `MastForest` (#1370)
-- Updated CI to support `CHANGELOG.md` modification checking and `no changelog` label (#1406)
-- Introduced `MastForestError` to enforce `MastForest` node count invariant (#1394)
-- Added functions to `MastForestBuilder` to allow ensuring of nodes with fewer LOC (#1404)
+- Add serialization/deserialization for `MastForest` (#1370).
+- Updated CI to support `CHANGELOG.md` modification checking and `no changelog` label (#1406).
+- Introduced `MastForestError` to enforce `MastForest` node count invariant (#1394).
+- Added functions to `MastForestBuilder` to allow ensuring of nodes with fewer LOC (#1404).
 - [BREAKING] Made `Assembler` single-use (#1409).
 - Removed `ProcedureCache` from the assembler (#1411).
-- Added functions to `MastForest` and `MastForestBuilder` to add and ensure nodes with fewer LOC (#1404, #1412)
+- Added functions to `MastForest` and `MastForestBuilder` to add and ensure nodes with fewer LOC (#1404, #1412).
 - Added `Assembler::assemble_library()` and `Assembler::assemble_kernel()`  (#1413, #1418).
 - Added `miden_core::prettier::pretty_print_csv` helper, for formatting of iterators over `PrettyPrint` values as comma-separated items.
-- Added source code management primitives in `miden-core` (#1419)
+- Added source code management primitives in `miden-core` (#1419).
 - Added `make test-fast` and `make test-skip-proptests` Makefile targets for faster testing during local development.
 - Added `ProgramFile::read_with` constructor that takes a `SourceManager` impl to use for source management.
 - Added `RowIndex(u32)` (#1408).

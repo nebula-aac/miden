@@ -2,7 +2,7 @@ use alloc::{collections::BTreeMap, sync::Arc, vec::Vec};
 
 use mast_forest_builder::MastForestBuilder;
 use module_graph::{ProcedureWrapper, WrappedModule};
-use vm_core::{mast::MastNodeId, Decorator, DecoratorList, Felt, Kernel, Operation, Program};
+use vm_core::{mast::MastNodeId, DecoratorList, Felt, Kernel, Operation, Program};
 
 use crate::{
     ast::{self, Export, InvocationTarget, InvokeKind, ModuleKind, QualifiedProcedureName},
@@ -19,6 +19,7 @@ mod instruction;
 mod mast_forest_builder;
 mod module_graph;
 mod procedure;
+
 #[cfg(test)]
 mod tests;
 
@@ -176,6 +177,30 @@ impl Assembler {
         Ok(())
     }
 
+    /// Adds all modules (defined by ".masm" files) from the specified directory to the module
+    /// of this assembler graph.
+    ///
+    /// The modules will be added under the specified namespace, but otherwise preserving the
+    /// structure of the directory. Any module named `mod.masm` will be added using parent
+    /// directory path For example, if `namespace` = "ns", modules from the ~/masm directory
+    /// will be added as follows:
+    ///
+    /// - ~/masm/foo.masm        -> "ns::foo"
+    /// - ~/masm/bar/mod.masm    -> "ns::bar"
+    /// - ~/masm/bar/baz.masm    -> "ns::bar::baz"
+    #[cfg(feature = "std")]
+    pub fn add_modules_from_dir(
+        &mut self,
+        namespace: crate::LibraryNamespace,
+        dir: &std::path::Path,
+    ) -> Result<(), Report> {
+        for module in crate::parser::read_modules_from_dir(namespace, dir, &self.source_manager)? {
+            self.module_graph.add_ast_module(module)?;
+        }
+
+        Ok(())
+    }
+
     /// Adds the compiled library to provide modules for the compilation.
     pub fn add_library(&mut self, library: impl AsRef<Library>) -> Result<(), Report> {
         self.module_graph
@@ -209,6 +234,11 @@ impl Assembler {
     /// If the assembler was instantiated without a kernel, the internal kernel will be empty.
     pub fn kernel(&self) -> &Kernel {
         self.module_graph.kernel()
+    }
+
+    /// Returns a link to the source manager used by this assembler.
+    pub fn source_manager(&self) -> Arc<dyn SourceManager> {
+        self.source_manager.clone()
     }
 
     #[cfg(any(test, feature = "testing"))]
@@ -270,8 +300,8 @@ impl Assembler {
         };
 
         // TODO: show a warning if library exports are empty?
-
-        Ok(Library::new(mast_forest_builder.build(), exports))
+        let (mast_forest, _) = mast_forest_builder.build();
+        Ok(Library::new(mast_forest, exports))
     }
 
     /// Assembles the provided module into a [KernelLibrary] intended to be used as a Kernel.
@@ -312,7 +342,8 @@ impl Assembler {
 
         // TODO: show a warning if library exports are empty?
 
-        let library = Library::new(mast_forest_builder.build(), exports);
+        let (mast_forest, _) = mast_forest_builder.build();
+        let library = Library::new(mast_forest, exports);
         Ok(library.try_into()?)
     }
 
@@ -352,9 +383,18 @@ impl Assembler {
             .get_procedure(entrypoint)
             .expect("compilation succeeded but root not found in cache");
 
+        let (mast_forest, id_remappings) = mast_forest_builder.build();
+        let entry_node_id = {
+            let old_entry_node_id = entry_procedure.body_node_id();
+
+            id_remappings
+                .map(|id_remappings| id_remappings[&old_entry_node_id])
+                .unwrap_or(old_entry_node_id)
+        };
+
         Ok(Program::with_kernel(
-            mast_forest_builder.build(),
-            entry_procedure.body_node_id(),
+            mast_forest,
+            entry_node_id,
             self.module_graph.kernel().clone(),
         ))
     }
@@ -425,6 +465,7 @@ impl Assembler {
                         procedure_gid,
                         name,
                         proc.visibility(),
+                        module.is_kernel(),
                         self.source_manager.clone(),
                     )
                     .with_num_locals(num_locals)
@@ -447,6 +488,7 @@ impl Assembler {
                         procedure_gid,
                         name,
                         ast::Visibility::Public,
+                        module.is_kernel(),
                         self.source_manager.clone(),
                     )
                     .with_span(proc_alias.span());
@@ -512,7 +554,7 @@ impl Assembler {
     {
         use ast::Op;
 
-        let mut mast_node_ids: Vec<MastNodeId> = Vec::new();
+        let mut node_ids: Vec<MastNodeId> = Vec::new();
         let mut basic_block_builder = BasicBlockBuilder::new(wrapper);
 
         for op in body {
@@ -527,10 +569,10 @@ impl Assembler {
                         if let Some(basic_block_id) =
                             basic_block_builder.make_basic_block(mast_forest_builder)?
                         {
-                            mast_node_ids.push(basic_block_id);
+                            node_ids.push(basic_block_id);
                         }
 
-                        mast_node_ids.push(mast_node_id);
+                        node_ids.push(mast_node_id);
                     }
                 },
 
@@ -538,7 +580,7 @@ impl Assembler {
                     if let Some(basic_block_id) =
                         basic_block_builder.make_basic_block(mast_forest_builder)?
                     {
-                        mast_node_ids.push(basic_block_id);
+                        node_ids.push(basic_block_id);
                     }
 
                     let then_blk =
@@ -547,21 +589,21 @@ impl Assembler {
                         self.compile_body(else_blk.iter(), proc_ctx, None, mast_forest_builder)?;
 
                     let split_node_id = mast_forest_builder.ensure_split(then_blk, else_blk)?;
-                    mast_node_ids.push(split_node_id);
+                    node_ids.push(split_node_id);
                 },
 
                 Op::Repeat { count, body, .. } => {
                     if let Some(basic_block_id) =
                         basic_block_builder.make_basic_block(mast_forest_builder)?
                     {
-                        mast_node_ids.push(basic_block_id);
+                        node_ids.push(basic_block_id);
                     }
 
                     let repeat_node_id =
                         self.compile_body(body.iter(), proc_ctx, None, mast_forest_builder)?;
 
                     for _ in 0..*count {
-                        mast_node_ids.push(repeat_node_id);
+                        node_ids.push(repeat_node_id);
                     }
                 },
 
@@ -569,14 +611,14 @@ impl Assembler {
                     if let Some(basic_block_id) =
                         basic_block_builder.make_basic_block(mast_forest_builder)?
                     {
-                        mast_node_ids.push(basic_block_id);
+                        node_ids.push(basic_block_id);
                     }
 
                     let loop_body_node_id =
                         self.compile_body(body.iter(), proc_ctx, None, mast_forest_builder)?;
 
                     let loop_node_id = mast_forest_builder.ensure_loop(loop_body_node_id)?;
-                    mast_node_ids.push(loop_node_id);
+                    node_ids.push(loop_node_id);
                 },
             }
         }
@@ -584,13 +626,13 @@ impl Assembler {
         if let Some(basic_block_id) =
             basic_block_builder.try_into_basic_block(mast_forest_builder)?
         {
-            mast_node_ids.push(basic_block_id);
+            node_ids.push(basic_block_id);
         }
 
-        Ok(if mast_node_ids.is_empty() {
+        Ok(if node_ids.is_empty() {
             mast_forest_builder.ensure_block(vec![Operation::Noop], None)?
         } else {
-            combine_mast_node_ids(mast_node_ids, mast_forest_builder)?
+            mast_forest_builder.join_nodes(node_ids)?
         })
     }
 
@@ -630,37 +672,4 @@ impl Assembler {
 struct BodyWrapper {
     prologue: Vec<Operation>,
     epilogue: Vec<Operation>,
-}
-
-fn combine_mast_node_ids(
-    mut mast_node_ids: Vec<MastNodeId>,
-    mast_forest_builder: &mut MastForestBuilder,
-) -> Result<MastNodeId, AssemblyError> {
-    debug_assert!(!mast_node_ids.is_empty(), "cannot combine empty MAST node id list");
-
-    // build a binary tree of blocks joining them using JOIN blocks
-    while mast_node_ids.len() > 1 {
-        let last_mast_node_id = if mast_node_ids.len() % 2 == 0 {
-            None
-        } else {
-            mast_node_ids.pop()
-        };
-
-        let mut source_mast_node_ids = Vec::new();
-        core::mem::swap(&mut mast_node_ids, &mut source_mast_node_ids);
-
-        let mut source_mast_node_iter = source_mast_node_ids.drain(0..);
-        while let (Some(left), Some(right)) =
-            (source_mast_node_iter.next(), source_mast_node_iter.next())
-        {
-            let join_mast_node_id = mast_forest_builder.ensure_join(left, right)?;
-
-            mast_node_ids.push(join_mast_node_id);
-        }
-        if let Some(mast_node_id) = last_mast_node_id {
-            mast_node_ids.push(mast_node_id);
-        }
-    }
-
-    Ok(mast_node_ids.remove(0))
 }

@@ -1,5 +1,6 @@
 use alloc::{
     collections::{BTreeMap, BTreeSet},
+    string::{String, ToString},
     vec::Vec,
 };
 
@@ -10,11 +11,9 @@ use vm_core::{
     Kernel,
 };
 
-use crate::ast::{AstSerdeOptions, QualifiedProcedureName};
+use crate::ast::{ProcedureName, QualifiedProcedureName};
 
 mod error;
-#[cfg(feature = "std")]
-mod masl;
 mod module;
 mod namespace;
 mod path;
@@ -144,23 +143,6 @@ impl Library {
     }
 }
 
-/// Serialization
-impl Library {
-    /// Serialize to `target` using `options`
-    pub fn write_into_with_options<W: ByteWriter>(&self, target: &mut W, options: AstSerdeOptions) {
-        let Self { digest: _, exports, mast_forest } = self;
-
-        options.write_into(target);
-        mast_forest.write_into(target);
-
-        target.write_usize(exports.len());
-        for (proc_name, export) in exports {
-            proc_name.write_into_with_options(target, options);
-            export.write_into(target);
-        }
-    }
-}
-
 impl From<Library> for MastForest {
     fn from(value: Library) -> Self {
         value.mast_forest
@@ -169,19 +151,31 @@ impl From<Library> for MastForest {
 
 impl Serializable for Library {
     fn write_into<W: ByteWriter>(&self, target: &mut W) {
-        self.write_into_with_options(target, AstSerdeOptions::default())
+        let Self { digest: _, exports, mast_forest } = self;
+
+        mast_forest.write_into(target);
+
+        target.write_usize(exports.len());
+        for (proc_name, export) in exports {
+            proc_name.module.write_into(target);
+            proc_name.name.as_str().write_into(target);
+            export.write_into(target);
+        }
     }
 }
 
 impl Deserializable for Library {
     fn read_from<R: ByteReader>(source: &mut R) -> Result<Self, DeserializationError> {
-        let options = AstSerdeOptions::read_from(source)?;
         let mast_forest = MastForest::read_from(source)?;
 
         let num_exports = source.read_usize()?;
         let mut exports = BTreeMap::new();
         for _ in 0..num_exports {
-            let proc_name = QualifiedProcedureName::read_from_with_options(source, options)?;
+            let proc_module = source.read()?;
+            let proc_name: String = source.read()?;
+            let proc_name = ProcedureName::new(proc_name)
+                .map_err(|err| DeserializationError::InvalidValue(err.to_string()))?;
+            let proc_name = QualifiedProcedureName::new(proc_module, proc_name);
             let export = Export::read_with_forest(source, &mast_forest)?;
 
             exports.insert(proc_name, export);
@@ -206,52 +200,36 @@ fn content_hash(
 
 #[cfg(feature = "std")]
 mod use_std_library {
-    use std::{collections::btree_map::Entry, fs, io, path::Path, sync::Arc};
+    use std::{fs, io, path::Path};
 
-    use masl::{LibraryEntry, WalkLibrary};
-    use miette::{Context, Report};
+    use miette::Report;
     use vm_core::utils::ReadAdapter;
 
     use super::*;
-    use crate::{
-        ast::{self, ModuleKind},
-        diagnostics::{IntoDiagnostic, SourceManager},
-        Assembler,
-    };
+    use crate::Assembler;
 
     impl Library {
         /// File extension for the Assembly Library.
         pub const LIBRARY_EXTENSION: &'static str = "masl";
-
-        /// File extension for the Assembly Module.
-        pub const MODULE_EXTENSION: &'static str = "masm";
-
-        /// Name of the root module.
-        pub const MOD: &'static str = "mod";
 
         /// Write the library to a target file
         ///
         /// NOTE: It is up to the caller to use the correct file extension, but there is no
         /// specific requirement that the extension be set, or the same as
         /// [`Self::LIBRARY_EXTENSION`].
-        pub fn write_to_file(
-            &self,
-            path: impl AsRef<Path>,
-            options: AstSerdeOptions,
-        ) -> io::Result<()> {
+        pub fn write_to_file(&self, path: impl AsRef<Path>) -> io::Result<()> {
             let path = path.as_ref();
 
             if let Some(dir) = path.parent() {
                 fs::create_dir_all(dir)?;
             }
 
-            // NOTE: We catch panics due to i/o errors here due to the fact
-            // that the ByteWriter trait does not provide fallible APIs, so
-            // WriteAdapter will panic if the underlying writes fail. This
-            // needs to be addressed in winterfall at some point
+            // NOTE: We catch panics due to i/o errors here due to the fact that the ByteWriter
+            // trait does not provide fallible APIs, so WriteAdapter will panic if the underlying
+            // writes fail. This needs to be addressed in winterfell at some point
             std::panic::catch_unwind(|| {
                 let mut file = fs::File::create(path)?;
-                self.write_into_with_options(&mut file, options);
+                self.write_into(&mut file);
                 Ok(())
             })
             .map_err(|p| {
@@ -293,72 +271,13 @@ mod use_std_library {
         pub fn from_dir(
             path: impl AsRef<Path>,
             namespace: LibraryNamespace,
-            source_manager: Arc<dyn SourceManager>,
+            assembler: Assembler,
         ) -> Result<Self, Report> {
             let path = path.as_ref();
-            if !path.is_dir() {
-                return Err(Report::msg(format!(
-                    "the provided path '{}' is not a valid directory",
-                    path.display()
-                )));
-            }
 
-            // mod.masm is not allowed in the root directory
-            if path.join("mod.masm").exists() {
-                return Err(Report::msg("mod.masm is not allowed in the root directory"));
-            }
-
-            Self::compile_modules_from_dir(namespace, path, source_manager)
-        }
-
-        /// Read the contents (modules) of this library from `dir`, returning any errors that occur
-        /// while traversing the file system.
-        ///
-        /// Errors may also be returned if traversal discovers issues with the library, such as
-        /// invalid names, etc.
-        ///
-        /// Returns a library built from the set of modules that were compiled.
-        fn compile_modules_from_dir(
-            namespace: LibraryNamespace,
-            dir: &Path,
-            source_manager: Arc<dyn SourceManager>,
-        ) -> Result<Self, Report> {
-            let mut modules = BTreeMap::default();
-
-            let walker = WalkLibrary::new(namespace.clone(), dir)
-                .into_diagnostic()
-                .wrap_err_with(|| format!("failed to load library from '{}'", dir.display()))?;
-            for entry in walker {
-                let LibraryEntry { mut name, source_path } = entry?;
-                if name.last() == Self::MOD {
-                    name.pop();
-                }
-                // Parse module at the given path
-                let mut parser = ast::Module::parser(ModuleKind::Library);
-                let ast = parser.parse_file(name.clone(), &source_path, &source_manager)?;
-                match modules.entry(name) {
-                    Entry::Occupied(ref entry) => {
-                        return Err(LibraryError::DuplicateModulePath(entry.key().clone()))
-                            .into_diagnostic();
-                    },
-                    Entry::Vacant(entry) => {
-                        entry.insert(ast);
-                    },
-                }
-            }
-
-            if modules.len() > MAX_MODULES {
-                return Err(LibraryError::TooManyModulesInLibrary {
-                    name: namespace.clone(),
-                    count: modules.len(),
-                    max: MAX_MODULES,
-                }
-                .into());
-            }
-
-            Assembler::new(source_manager)
-                .with_debug_mode(true)
-                .assemble_library(modules.into_values())
+            let modules =
+                crate::parser::read_modules_from_dir(namespace, path, &assembler.source_manager())?;
+            assembler.assemble_library(modules)
         }
 
         pub fn deserialize_from_file(path: impl AsRef<Path>) -> Result<Self, DeserializationError> {
@@ -437,13 +356,26 @@ impl Export {
 /// - All exported procedures must be exported directly from the kernel namespace (i.e., `#sys`).
 /// - There must be at least one exported procedure.
 /// - The number of exported procedures cannot exceed [Kernel::MAX_NUM_PROCEDURES] (i.e., 256).
+#[derive(Clone)]
 pub struct KernelLibrary {
     kernel: Kernel,
     kernel_info: ModuleInfo,
     library: Library,
 }
 
+impl AsRef<Library> for KernelLibrary {
+    #[inline(always)]
+    fn as_ref(&self) -> &Library {
+        &self.library
+    }
+}
+
 impl KernelLibrary {
+    /// Returns the [Kernel] for this kernel library.
+    pub fn kernel(&self) -> &Kernel {
+        &self.kernel
+    }
+
     /// Returns the inner [`MastForest`].
     pub fn mast_forest(&self) -> &MastForest {
         self.library.mast_forest()
@@ -491,16 +423,6 @@ impl TryFrom<Library> for KernelLibrary {
     }
 }
 
-/// Serialization
-impl KernelLibrary {
-    /// Serialize to `target` using `options`
-    pub fn write_into_with_options<W: ByteWriter>(&self, target: &mut W, options: AstSerdeOptions) {
-        let Self { kernel: _, kernel_info: _, library } = self;
-
-        library.write_into_with_options(target, options);
-    }
-}
-
 impl From<KernelLibrary> for MastForest {
     fn from(value: KernelLibrary) -> Self {
         value.library.mast_forest
@@ -509,7 +431,9 @@ impl From<KernelLibrary> for MastForest {
 
 impl Serializable for KernelLibrary {
     fn write_into<W: ByteWriter>(&self, target: &mut W) {
-        self.write_into_with_options(target, AstSerdeOptions::default())
+        let Self { kernel: _, kernel_info: _, library } = self;
+
+        library.write_into(target);
     }
 }
 
@@ -527,36 +451,43 @@ impl Deserializable for KernelLibrary {
 
 #[cfg(feature = "std")]
 mod use_std_kernel {
-    use std::{io, path::Path, sync::Arc};
+    use std::{io, path::Path};
 
     use super::*;
-    use crate::diagnostics::{Report, SourceManager};
+    use crate::{diagnostics::Report, Assembler};
 
     impl KernelLibrary {
         /// Write the library to a target file
-        pub fn write_to_file(
-            &self,
-            path: impl AsRef<Path>,
-            options: AstSerdeOptions,
-        ) -> io::Result<()> {
-            self.library.write_to_file(path, options)
+        pub fn write_to_file(&self, path: impl AsRef<Path>) -> io::Result<()> {
+            self.library.write_to_file(path)
         }
 
-        /// Create a [KernelLibrary] from a standard Miden Assembly project layout.
+        /// Create a [KernelLibrary] from a standard Miden Assembly kernel project layout.
         ///
-        /// This is essentially a wrapper around [Library::from_dir], which then validates
-        /// that the resulting [Library] is a valid [KernelLibrary].
+        /// The kernel library will export procedures defined by the module at `sys_module_path`.
+        /// If the optional `lib_dir` is provided, all modules under this directory will be
+        /// available from the kernel module under the `kernel` namespace. For example, if
+        /// `lib_dir` is set to "~/masm/lib", the files will be accessible in the kernel module as
+        /// follows:
+        ///
+        /// - ~/masm/lib/foo.masm        -> Can be imported as "kernel::foo"
+        /// - ~/masm/lib/bar/baz.masm    -> Can be imported as "kernel::bar::baz"
+        ///
+        /// Note: this is a temporary structure which will likely change once
+        /// <https://github.com/0xPolygonMiden/miden-vm/issues/1436> is implemented.
         pub fn from_dir(
-            path: impl AsRef<Path>,
-            source_manager: Arc<dyn SourceManager>,
+            sys_module_path: impl AsRef<Path>,
+            lib_dir: Option<impl AsRef<Path>>,
+            mut assembler: Assembler,
         ) -> Result<Self, Report> {
-            let library = Library::from_dir(path, LibraryNamespace::Kernel, source_manager)?;
+            // if library directory is provided, add modules from this directory to the assembler
+            if let Some(lib_dir) = lib_dir {
+                let lib_dir = lib_dir.as_ref();
+                let namespace = LibraryNamespace::new("kernel").expect("invalid namespace");
+                assembler.add_modules_from_dir(namespace, lib_dir)?;
+            }
 
-            Ok(Self::try_from(library)?)
+            assembler.assemble_kernel(sys_module_path.as_ref())
         }
     }
 }
-
-/// Maximum number of modules in a library.
-#[cfg(feature = "std")]
-const MAX_MODULES: usize = u16::MAX as usize;

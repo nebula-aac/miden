@@ -1,10 +1,8 @@
-use std::{path::PathBuf, sync::Arc};
+use std::path::PathBuf;
 
 use assembly::{
-    ast::AstSerdeOptions,
     diagnostics::{IntoDiagnostic, Report},
-    library::Library,
-    LibraryNamespace, Version,
+    Assembler, Library, LibraryNamespace,
 };
 use clap::Parser;
 
@@ -41,20 +39,17 @@ impl BundleCmd {
                 .into_owned(),
         };
 
-        let source_manager = Arc::new(assembly::DefaultSourceManager::default());
+        let assembler = Assembler::default().with_debug_mode(true);
         let library_namespace =
             namespace.parse::<LibraryNamespace>().expect("invalid base namespace");
-        // TODO: Add version to `Library`
-        let _version = self.version.parse::<Version>().expect("invalid cargo version");
-        let stdlib = Library::from_dir(&self.dir, library_namespace, source_manager)?;
+        let library = Library::from_dir(&self.dir, library_namespace, assembler)?;
 
         // write the masl output
-        let options = AstSerdeOptions::new(false, false);
         let output_file = self
             .dir
             .join(self.namespace.as_deref().unwrap_or("out"))
             .with_extension(Library::LIBRARY_EXTENSION);
-        stdlib.write_to_file(output_file, options).into_diagnostic()?;
+        library.write_to_file(output_file).into_diagnostic()?;
 
         println!("Built library {}", namespace);
 

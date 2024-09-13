@@ -1,10 +1,8 @@
-use std::{env, path::Path, sync::Arc};
+use std::{env, path::Path};
 
 use assembly::{
-    ast::AstSerdeOptions,
     diagnostics::{IntoDiagnostic, Result},
-    library::Library,
-    LibraryNamespace, Version,
+    Assembler, Library, LibraryNamespace,
 };
 
 // CONSTANTS
@@ -27,21 +25,18 @@ fn main() -> Result<()> {
     let manifest_dir = env!("CARGO_MANIFEST_DIR");
     let asm_dir = Path::new(manifest_dir).join(ASM_DIR_PATH);
 
-    let source_manager = Arc::new(assembly::DefaultSourceManager::default());
+    let assembler = Assembler::default().with_debug_mode(cfg!(feature = "with-debug-info"));
     let namespace = "std".parse::<LibraryNamespace>().expect("invalid base namespace");
-    // TODO: Add version to `Library`
-    let _version = env!("CARGO_PKG_VERSION").parse::<Version>().expect("invalid cargo version");
-    let stdlib = Library::from_dir(asm_dir, namespace, source_manager)?;
+    let stdlib = Library::from_dir(asm_dir, namespace, assembler)?;
 
     // write the masl output
     let build_dir = env::var("OUT_DIR").unwrap();
     let build_dir = Path::new(&build_dir);
-    let options = AstSerdeOptions::new(false, false);
     let output_file = build_dir
         .join(ASL_DIR_PATH)
         .join("std")
         .with_extension(Library::LIBRARY_EXTENSION);
-    stdlib.write_to_file(output_file, options).into_diagnostic()?;
+    stdlib.write_to_file(output_file).into_diagnostic()?;
 
     Ok(())
 }
