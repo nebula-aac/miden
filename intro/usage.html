@@ -1,5 +1,5 @@
 <!DOCTYPE HTML>
-<html lang="en" class="light" dir="ltr">
+<html lang="en" class="light sidebar-visible" dir="ltr">
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
@@ -7,7 +7,7 @@
 
 
         <!-- Custom HTML head -->
-        
+
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="theme-color" content="#ffffff">
@@ -30,15 +30,17 @@
 
         <!-- Custom theme stylesheets -->
 
-    </head>
-    <body class="sidebar-visible no-js">
-    <div id="body-container">
+
         <!-- Provide site root to javascript -->
         <script>
             var path_to_root = "../";
             var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
         </script>
-
+        <!-- Start loading toc.js asap -->
+        <script src="../toc.js"></script>
+    </head>
+    <body>
+    <div id="body-container">
         <!-- Work around some values being stored in localStorage wrapped in quotes -->
         <script>
             try {
@@ -60,19 +62,16 @@
             var theme;
             try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
             if (theme === null || theme === undefined) { theme = default_theme; }
-            var html = document.querySelector('html');
+            const html = document.documentElement;
             html.classList.remove('light')
             html.classList.add(theme);
-            var body = document.querySelector('body');
-            body.classList.remove('no-js')
-            body.classList.add('js');
+            html.classList.add("js");
         </script>
 
         <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
 
         <!-- Hide / unhide sidebar before it is displayed -->
         <script>
-            var body = document.querySelector('body');
             var sidebar = null;
             var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
             if (document.body.clientWidth >= 1080) {
@@ -82,45 +81,25 @@
                 sidebar = 'hidden';
             }
             sidebar_toggle.checked = sidebar === 'visible';
-            body.classList.remove('sidebar-visible');
-            body.classList.add("sidebar-" + sidebar);
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
         </script>
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
-            <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded "><a href="../intro/main.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../intro/overview.html"><strong aria-hidden="true">1.1.</strong> Overview</a></li><li class="chapter-item expanded "><a href="../intro/usage.html" class="active"><strong aria-hidden="true">1.2.</strong> Usage</a></li><li class="chapter-item expanded "><a href="../intro/performance.html"><strong aria-hidden="true">1.3.</strong> Performance</a></li></ol></li><li class="chapter-item expanded "><a href="../tools/main.html"><strong aria-hidden="true">2.</strong> Development tooling</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../tools/debugger.html"><strong aria-hidden="true">2.1.</strong> Debugger</a></li><li class="chapter-item expanded "><a href="../tools/repl.html"><strong aria-hidden="true">2.2.</strong> REPL</a></li></ol></li><li class="chapter-item expanded "><a href="../user_docs/main.html"><strong aria-hidden="true">3.</strong> User Documentation</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../user_docs/assembly/main.html"><strong aria-hidden="true">3.1.</strong> Miden Assembly</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../user_docs/assembly/code_organization.html"><strong aria-hidden="true">3.1.1.</strong> Code Organization</a></li><li class="chapter-item expanded "><a href="../user_docs/assembly/execution_contexts.html"><strong aria-hidden="true">3.1.2.</strong> Execution contexts</a></li><li class="chapter-item expanded "><a href="../user_docs/assembly/flow_control.html"><strong aria-hidden="true">3.1.3.</strong> Flow Control</a></li><li class="chapter-item expanded "><a href="../user_docs/assembly/field_operations.html"><strong aria-hidden="true">3.1.4.</strong> Field Operations</a></li><li class="chapter-item expanded "><a href="../user_docs/assembly/u32_operations.html"><strong aria-hidden="true">3.1.5.</strong> u32 Operations</a></li><li class="chapter-item expanded "><a href="../user_docs/assembly/stack_manipulation.html"><strong aria-hidden="true">3.1.6.</strong> Stack manipulation</a></li><li class="chapter-item expanded "><a href="../user_docs/assembly/io_operations.html"><strong aria-hidden="true">3.1.7.</strong> Input / Output Operations</a></li><li class="chapter-item expanded "><a href="../user_docs/assembly/cryptographic_operations.html"><strong aria-hidden="true">3.1.8.</strong> Cryptographic Operations</a></li><li class="chapter-item expanded "><a href="../user_docs/assembly/events.html"><strong aria-hidden="true">3.1.9.</strong> Events</a></li><li class="chapter-item expanded "><a href="../user_docs/assembly/debugging.html"><strong aria-hidden="true">3.1.10.</strong> Debugging</a></li></ol></li><li class="chapter-item expanded "><a href="../user_docs/stdlib/main.html"><strong aria-hidden="true">3.2.</strong> Miden Standard Library</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../user_docs/stdlib/collections.html"><strong aria-hidden="true">3.2.1.</strong> std::collections</a></li><li class="chapter-item expanded "><a href="../user_docs/stdlib/crypto/dsa.html"><strong aria-hidden="true">3.2.2.</strong> std::crypto::dsa</a></li><li class="chapter-item expanded "><a href="../user_docs/stdlib/crypto/fri.html"><strong aria-hidden="true">3.2.3.</strong> std::crypto::fri</a></li><li class="chapter-item expanded "><a href="../user_docs/stdlib/crypto/hashes.html"><strong aria-hidden="true">3.2.4.</strong> std::crypto::hashes</a></li><li class="chapter-item expanded "><a href="../user_docs/stdlib/math/u64.html"><strong aria-hidden="true">3.2.5.</strong> std::math::u64</a></li><li class="chapter-item expanded "><a href="../user_docs/stdlib/mem.html"><strong aria-hidden="true">3.2.6.</strong> std::mem</a></li><li class="chapter-item expanded "><a href="../user_docs/stdlib/sys.html"><strong aria-hidden="true">3.2.7.</strong> std:sys</a></li></ol></li></ol></li><li class="chapter-item expanded "><a href="../design/main.html"><strong aria-hidden="true">4.</strong> Design</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../design/programs.html"><strong aria-hidden="true">4.1.</strong> Programs</a></li><li class="chapter-item expanded "><a href="../design/decoder/main.html"><strong aria-hidden="true">4.2.</strong> Program decoder</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../design/decoder/constraints.html"><strong aria-hidden="true">4.2.1.</strong> Decoder constraints</a></li></ol></li><li class="chapter-item expanded "><a href="../design/stack/main.html"><strong aria-hidden="true">4.3.</strong> Operand stack</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../design/stack/op_constraints.html"><strong aria-hidden="true">4.3.1.</strong> Operation constraints</a></li><li class="chapter-item expanded "><a href="../design/stack/system_ops.html"><strong aria-hidden="true">4.3.2.</strong> System operations</a></li><li class="chapter-item expanded "><a href="../design/stack/field_ops.html"><strong aria-hidden="true">4.3.3.</strong> Field operations</a></li><li class="chapter-item expanded "><a href="../design/stack/u32_ops.html"><strong aria-hidden="true">4.3.4.</strong> u32 operations</a></li><li class="chapter-item expanded "><a href="../design/stack/stack_ops.html"><strong aria-hidden="true">4.3.5.</strong> Stack manipulation</a></li><li class="chapter-item expanded "><a href="../design/stack/io_ops.html"><strong aria-hidden="true">4.3.6.</strong> Input / output operations</a></li><li class="chapter-item expanded "><a href="../design/stack/crypto_ops.html"><strong aria-hidden="true">4.3.7.</strong> Cryptographic operations</a></li></ol></li><li class="chapter-item expanded "><a href="../design/range.html"><strong aria-hidden="true">4.4.</strong> Range Checker</a></li><li class="chapter-item expanded "><a href="../design/chiplets/main.html"><strong aria-hidden="true">4.5.</strong> Chiplets</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../design/chiplets/hasher.html"><strong aria-hidden="true">4.5.1.</strong> Hash Chiplet</a></li><li class="chapter-item expanded "><a href="../design/chiplets/bitwise.html"><strong aria-hidden="true">4.5.2.</strong> Bitwise Chiplet</a></li><li class="chapter-item expanded "><a href="../design/chiplets/memory.html"><strong aria-hidden="true">4.5.3.</strong> Memory Chiplet</a></li><li class="chapter-item expanded "><a href="../design/chiplets/kernel_rom.html"><strong aria-hidden="true">4.5.4.</strong> Kernel ROM Chiplet</a></li></ol></li><li class="chapter-item expanded "><a href="../design/lookups/main.html"><strong aria-hidden="true">4.6.</strong> Lookup arguments</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../design/lookups/multiset.html"><strong aria-hidden="true">4.6.1.</strong> Multiset checks</a></li><li class="chapter-item expanded "><a href="../design/lookups/logup.html"><strong aria-hidden="true">4.6.2.</strong> LogUp</a></li></ol></li></ol></li><li class="chapter-item expanded "><a href="../background.html"><strong aria-hidden="true">5.</strong> Background Material</a></li></ol>
-            </div>
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle">
                 <div class="sidebar-resize-indicator"></div>
             </div>
         </nav>
 
-        <!-- Track and set sidebar scroll position -->
-        <script>
-            var sidebarScrollbox = document.querySelector('#sidebar .sidebar-scrollbox');
-            sidebarScrollbox.addEventListener('click', function(e) {
-                if (e.target.tagName === 'A') {
-                    sessionStorage.setItem('sidebar-scroll', sidebarScrollbox.scrollTop);
-                }
-            }, { passive: true });
-            var sidebarScrollTop = sessionStorage.getItem('sidebar-scroll');
-            sessionStorage.removeItem('sidebar-scroll');
-            if (sidebarScrollTop) {
-                // preserve sidebar scroll position when navigating via links within sidebar
-                sidebarScrollbox.scrollTop = sidebarScrollTop;
-            } else {
-                // scroll sidebar to current active section when navigating via "next/previous chapter" buttons
-                var activeSection = document.querySelector('#sidebar .active');
-                if (activeSection) {
-                    activeSection.scrollIntoView({ block: 'center' });
-                }
-            }
-        </script>
-
         <div id="page-wrapper" class="page-wrapper">
 
             <div class="page">
-                                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar-hover-placeholder"></div>
                 <div id="menu-bar" class="menu-bar sticky">
                     <div class="left-buttons">
                         <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
@@ -245,7 +224,7 @@
 
 </style>
 <h1 id="usage"><a class="header" href="#usage">Usage</a></h1>
-<p>Before you can use Miden VM, you'll need to make sure you have Rust <a href="https://www.rust-lang.org/tools/install">installed</a>. Miden VM v0.10 requires Rust version <strong>1.80</strong> or later.</p>
+<p>Before you can use Miden VM, you'll need to make sure you have Rust <a href="https://www.rust-lang.org/tools/install">installed</a>. Miden VM v0.11 requires Rust version <strong>1.82</strong> or later.</p>
 <p>Miden VM consists of several crates, each of which exposes a small set of functionality. The most notable of these crates are:</p>
 <ul>
 <li><a href="https://crates.io/crates/miden-processor">miden-processor</a>, which can be used to execute Miden VM programs.</li>
@@ -256,35 +235,35 @@
 <h2 id="cli-interface"><a class="header" href="#cli-interface">CLI interface</a></h2>
 <h3 id="compiling-miden-vm"><a class="header" href="#compiling-miden-vm">Compiling Miden VM</a></h3>
 <p>To compile Miden VM into a binary, we have a <a href="https://www.gnu.org/software/make/manual/make.html">Makefile</a> with the following tasks:</p>
-<pre><code>make exec
+<pre><code class="language-shell">make exec
 </code></pre>
 <p>This will place an optimized, multi-threaded <code>miden</code> executable into the <code>./target/optimized</code> directory. It is equivalent to executing:</p>
-<pre><code>cargo build --profile optimized --features concurrent,executable
+<pre><code class="language-shell">cargo build --profile optimized --features concurrent,executable
 </code></pre>
 <p>If you would like to enable single-threaded mode, you can compile Miden VM using the following command:</p>
-<pre><code>make exec-single
+<pre><code class="language-shell">make exec-single
 </code></pre>
 <h3 id="controlling-parallelism"><a class="header" href="#controlling-parallelism">Controlling parallelism</a></h3>
 <p>Internally, Miden VM uses <a href="https://github.com/rayon-rs/rayon">rayon</a> for parallel computations. To control the number of threads used to generate a STARK proof, you can use <code>RAYON_NUM_THREADS</code> environment variable.</p>
 <h3 id="gpu-acceleration"><a class="header" href="#gpu-acceleration">GPU acceleration</a></h3>
-<p>Miden VM proof generation can be accelerated via GPUs. Currently, GPU acceleration is enabled only on Apple silicon hardware (via <a href="https://en.wikipedia.org/wiki/Metal_(API)">Metal</a>). To compile Miden VM with Metal acceleration enabled, you can run the following command:</p>
-<pre><code>make exec-metal
+<p>Miden VM proof generation can be accelerated via GPUs. Currently, GPU acceleration is enabled only on Apple Silicon hardware (via <a href="https://en.wikipedia.org/wiki/Metal_(API)">Metal</a>). To compile Miden VM with Metal acceleration enabled, you can run the following command:</p>
+<pre><code class="language-shell">make exec-metal
 </code></pre>
 <p>Similar to <code>make exec</code> command, this will place the resulting <code>miden</code> executable into the <code>./target/optimized</code> directory.</p>
 <p>Currently, GPU acceleration is applicable only to recursive proofs which can be generated using the <code>-r</code> flag.</p>
 <h3 id="simd-acceleration"><a class="header" href="#simd-acceleration">SIMD acceleration</a></h3>
 <p>Miden VM execution and proof generation can be accelerated via vectorized instructions. Currently, SIMD acceleration can be enabled on platforms supporting <a href="https://en.wikipedia.org/wiki/AArch64#Scalable_Vector_Extension_(SVE)">SVE</a> and <a href="https://en.wikipedia.org/wiki/Advanced_Vector_Extensions#Advanced_Vector_Extensions_2">AVX2</a> instructions.</p>
 <p>To compile Miden VM with AVX2 acceleration enabled, you can run the following command:</p>
-<pre><code>make exec-avx2
+<pre><code class="language-shell">make exec-avx2
 </code></pre>
 <p>To compile Miden VM with SVE acceleration enabled, you can run the following command:</p>
-<pre><code>make exec-sve
+<pre><code class="language-shell">make exec-sve
 </code></pre>
 <p>This will place the resulting <code>miden</code> executable into the <code>./target/optimized</code> directory.</p>
 <p>Similar to Metal acceleration, SVE/AVX2 acceleration is currently applicable only to recursive proofs which can be generated using the <code>-r</code> flag.</p>
 <h3 id="running-miden-vm"><a class="header" href="#running-miden-vm">Running Miden VM</a></h3>
 <p>Once the executable has been compiled, you can run Miden VM like so:</p>
-<pre><code>./target/optimized/miden [subcommand] [parameters]
+<pre><code class="language-shell">./target/optimized/miden [subcommand] [parameters]
 </code></pre>
 <p>Currently, Miden VM can be executed with the following subcommands:</p>
 <ul>
@@ -295,26 +274,30 @@
 <li><code>debug</code> - this will instantiate a <a href="../tools/debugger.html">Miden debugger</a> against the specified Miden assembly program and inputs.</li>
 <li><code>analyze</code> - this will run a Miden assembly program against specific inputs and will output stats about its execution.</li>
 <li><code>repl</code> - this will initiate the <a href="../tools/repl.html">Miden REPL</a> tool.</li>
-<li><code>example</code> - this will execute a Miden assembly example program, generate a STARK proof of execution and verify it. Currently it is possible to run <code>blake3</code> and <code>fibonacci</code> examples.</li>
+<li><code>example</code> - this will execute a Miden assembly example program, generate a STARK proof of execution and verify it. Currently, it is possible to run <code>blake3</code> and <code>fibonacci</code> examples.</li>
 </ul>
 <p>All of the above subcommands require various parameters to be provided. To get more detailed help on what is needed for a given subcommand, you can run the following:</p>
-<pre><code>./target/optimized/miden [subcommand] --help
+<pre><code class="language-shell">./target/optimized/miden [subcommand] --help
 </code></pre>
 <p>For example:</p>
-<pre><code>./target/optimized/miden prove --help
+<pre><code class="language-shell">./target/optimized/miden prove --help
 </code></pre>
 <p>To execute a program using the Miden VM there needs to be a <code>.masm</code> file containing the Miden Assembly code and a <code>.inputs</code> file containing the inputs.</p>
 <h4 id="enabling-logging"><a class="header" href="#enabling-logging">Enabling logging</a></h4>
 <p>You can use <code>MIDEN_LOG</code> environment variable to control how much logging output the VM produces. For example:</p>
-<pre><code>MIDEN_LOG=trace ./target/optimized/miden [subcommand] [parameters]
+<pre><code class="language-shell">MIDEN_LOG=trace ./target/optimized/miden [subcommand] [parameters]
 </code></pre>
 <p>If the level is not specified, <code>warn</code> level is set as default.</p>
+<h4 id="enable-debugging-features"><a class="header" href="#enable-debugging-features">Enable Debugging features</a></h4>
+<p>You can use the run command with <code>--debug</code> parameter to enable debugging with the <a href="../user_docs/assembly/debugging.html">debug instruction</a> such as <code>debug.stack</code>:</p>
+<pre><code class="language-shell">./target/optimized/miden run -a [path_to.masm] --debug
+</code></pre>
 <h3 id="inputs"><a class="header" href="#inputs">Inputs</a></h3>
 <p>As described <a href="https://0xpolygonmiden.github.io/miden-vm/intro/overview.html#inputs-and-outputs">here</a> the Miden VM can consume public and secret inputs.</p>
 <ul>
 <li>Public inputs:
 <ul>
-<li><code>operand_stack</code> - can be supplied to the VM to initialize the stack with the desired values before a program starts executing. There is no limit on the number of stack inputs that can be initialized in this way, although increasing the number of public inputs increases the cost to the verifier.</li>
+<li><code>operand_stack</code> - can be supplied to the VM to initialize the stack with the desired values before a program starts executing. If the number of provided input values is less than 16, the input stack will be padded with zeros to the length of 16. The maximum number of the stack inputs is limited by 16 values, providing more than 16 values will cause an error.</li>
 </ul>
 </li>
 <li>Secret (or nondeterministic) inputs:
@@ -332,16 +315,22 @@
 </li>
 </ul>
 <p><em>Check out the <a href="https://github.com/0xPolygonMiden/examples/blob/main/examples/comparison.masm">comparison example</a> to see how secret inputs work.</em></p>
-<p>After a program finishes executing, the elements that remain on the stack become the outputs of the program, along with the overflow addresses (<code>overflow_addrs</code>) that are required to reconstruct the <a href="../design/stack/main.html#overflow-table">stack overflow table</a>.</p>
+<p>After a program finishes executing, the elements that remain on the stack become the outputs of the program. Notice that the number of values on the operand stack at the end of the program execution can not be greater than 16, otherwise the program will return an error. The <a href="../user_docs/stdlib/sys.html"><code>truncate_stack</code></a> utility procedure from the standard library could be used to conveniently truncate the stack at the end of the program.</p>
 <h2 id="fibonacci-example"><a class="header" href="#fibonacci-example">Fibonacci example</a></h2>
 <p>In the <code>miden/examples/fib</code> directory, we provide a very simple Fibonacci calculator example. This example computes the 1001st term of the Fibonacci sequence. You can execute this example on Miden VM like so:</p>
-<pre><code>./target/optimized/miden run -a miden/examples/fib/fib.masm -n 1
+<pre><code class="language-shell">./target/optimized/miden run -a miden/examples/fib/fib.masm -n 1
 </code></pre>
+<h3 id="capturing-output"><a class="header" href="#capturing-output">Capturing Output</a></h3>
 <p>This will run the example code to completion and will output the top element remaining on the stack.</p>
 <p>If you want the output of the program in a file, you can use the <code>--output</code> or <code>-o</code> flag and specify the path to the output file. For example:</p>
-<pre><code>./target/optimized/miden run -a miden/examples/fib/fib.masm -o fib.out
+<pre><code class="language-shell">./target/optimized/miden run -a miden/examples/fib/fib.masm -o fib.out
 </code></pre>
 <p>This will dump the output of the program into the <code>fib.out</code> file. The output file will contain the state of the stack at the end of the program execution.</p>
+<h3 id="running-with-debug-instruction-enabled"><a class="header" href="#running-with-debug-instruction-enabled">Running with debug instruction enabled</a></h3>
+<p>Inside <code>miden/examples/fib/fib.masm</code>, insert <code>debug.stack</code> instruction anywhere between <code>begin</code> and <code>end</code>. Then run:</p>
+<pre><code class="language-shell">./target/optimized/miden run -a miden/examples/fib/fib.masm -n 1 --debug
+</code></pre>
+<p>You should see output similar to "Stack state before step ..."</p>
 
                     </main>
 
